@@ -54,8 +54,8 @@ The system consists of three main modules:
    - Admin dashboard
 
 3. **Frontend Layer**
-   - Django web app
-   - Flutter mobile app
+   - Django web dashboard
+   - Flutter mobile application
    - Login and reservation
    - Slot monitoring UI
 
@@ -77,19 +77,20 @@ IoT-smart-parking-management-system/
 ## 🚀 Setup and Run 
 
 ### 1. Clone the Repository
+```bash
 git clone https://github.com/Josh-shalom-06/IoT-smart-parking-management-system.git
 cd IoT-smart-parking-management-system
-
+```
 ---
 
-### ⚙️ Upload ESP32 Code
+### 2. ⚙️ Upload ESP32 Code
 1. Open Arduino IDE
 2. Connect ESP32 board
 3. Open required .ino file from ESP32_codes/
 4. Select correct COM port
 5. Upload sketch
 
-### 🌐 Run Django Web Application
+### 3. 🌐 Run Django Web Application
 ```bash
 cd Django_Web_app
 ```
@@ -109,7 +110,7 @@ pip install django firebase-admin pyrebase4
 ```bash
 python manage.py runserver
 ```
-### 📱 Run Flutter Mobile App
+### 4. 📱 Run Flutter Mobile App
 
 ```bash
 cd Flutter_Mobile_app
@@ -126,3 +127,10 @@ flutter devices
 ```bash
 flutter run
 ```
+---
+
+## 🎥 Project Demonstration
+Demo video and project documentation are available in:
+
+- `Project_demonstration/IoT_SPMS.mp4`
+- `Project_demonstration/Project demonstration.docx`
