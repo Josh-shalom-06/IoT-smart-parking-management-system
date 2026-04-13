@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background-color: #f4f4f4; }
+    .available { color: green; }
+    .reserved { color: orange; }
+    .occupied { color: red; }
+    button { padding: 5px 10px; margin: 2px; }
+  </style>
+</head>
+<body>
+  <h2>Admin Dashboard</h2>
+
+  <h3>Slot Summary</h3>
+  <p>Available: <span id="availableCount">0</span> | Reserved: <span id="reservedCount">0</span> | Occupied: <span id="occupiedCount">0</span></p>
+
+  <h3>All Slots</h3>
+  <table>
+    <thead>
+      <tr><th>Slot</th><th>Status</th><th>Reserved By</th><th>Action</th></tr>
+    </thead>
+    <tbody id="slotsTable"></tbody>
+  </table>
+
+  <h3>Registered Users</h3>
+  <table>
+    <thead>
+      <tr><th>UID</th><th>Name</th><th>Phone</th></tr>
+    </thead>
+    <tbody id="usersTable"></tbody>
+  </table>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtfVW_Tl6Z-rzYcfZr4uKz8Q7hO41sYHU",
+      authDomain: "iot-smart-park-sys-josh.firebaseapp.com",
+      databaseURL: "https://iot-smart-park-sys-josh-default-rtdb.firebaseio.com",
+      projectId: "iot-smart-park-sys-josh",
+      storageBucket: "iot-smart-park-sys-josh.appspot.com",
+      messagingSenderId: "937282914594",
+      appId: "1:937282914594:web:3df2ff7ecca9a921c63d7b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const slotsTable = document.getElementById("slotsTable");
+    const usersTable = document.getElementById("usersTable");
+    const availableCount = document.getElementById("availableCount");
+    const reservedCount = document.getElementById("reservedCount");
+    const occupiedCount = document.getElementById("occupiedCount");
+
+    // Load slots
+    db.ref("/slots").on("value", (snapshot) => {
+      const data = snapshot.val();
+      let available = 0, reserved = 0, occupied = 0;
+
+      slotsTable.innerHTML = '';
+      for (let slot in data) {
+        const details = data[slot];
+        const status = details.status || 'Unknown';
+        const reservedBy = details.reserved_by || '—';
+
+        if (status === "Available") available++;
+        else if (status === "Reserved") reserved++;
+        else if (status === "Occupied") occupied++;
+
+        const row = `<tr>
+          <td>${slot}</td>
+          <td class="${status.toLowerCase()}">${status}</td>
+          <td>${reservedBy}</td>
+          <td>
+            ${status === "Reserved" ? `<button onclick="clearSlot('${slot}')">Force Clear</button>` : ''}
+          </td>
+        </tr>`;
+        slotsTable.innerHTML += row;
+      }
+
+      availableCount.innerText = available;
+      reservedCount.innerText = reserved;
+      occupiedCount.innerText = occupied;
+    });
+
+    function clearSlot(slotId) {
+      db.ref(`/slots/${slotId}`).update({
+        status: "Available",
+        reserved_by: null
+      });
+      alert(`Slot ${slotId} cleared.`);
+    }
+
+    // Load registered users
+    db.ref("/rfid_users").once("value", (snapshot) => {
+      const users = snapshot.val();
+      usersTable.innerHTML = '';
+      for (let uid in users) {
+        const user = users[uid];
+        const row = `<tr>
+          <td>${uid}</td>
+          <td>${user.name}</td>
+          <td>${user.mobileNumber || '-'}</td>
+        </tr>`;
+        usersTable.innerHTML += row;
+      }
+    });
+  </script>
+</body>
+</html>

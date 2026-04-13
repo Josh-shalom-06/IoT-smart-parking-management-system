@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Available Parking Slots (Live)</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      padding: 20px;
+      margin: 0;
+    }
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    .summary {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .summary div {
+      background: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-weight: bold;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .occupied { color: red; }
+    .reserved { color: orange; }
+    .available { color: green; }
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .footer a {
+      color: #2980b9;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Public View: Parking Slot Status</h2>
+
+  <div class="summary">
+    <div id="available-count">Available: 0</div>
+    <div id="reserved-count">Reserved: 0</div>
+    <div id="occupied-count">Occupied: 0</div>
+  </div>
+
+  <ul id="slot-list">
+    <li>Loading slots...</li>
+  </ul>
+
+  <div class="footer">
+    <p><a href="{% url 'login' %}">Login to Reserve a Slot</a></p>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtfVW_Tl6Z-rzYcfZr4uKz8Q7hO41sYHU",
+      authDomain: "iot-smart-park-sys-josh.firebaseapp.com",
+      databaseURL: "https://iot-smart-park-sys-josh-default-rtdb.firebaseio.com",
+      projectId: "iot-smart-park-sys-josh",
+      storageBucket: "iot-smart-park-sys-josh.appspot.com",
+      messagingSenderId: "937282914594",
+      appId: "1:937282914594:web:3df2ff7ecca9a921c63d7b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const slotList = document.getElementById("slot-list");
+
+    function updateSummary(counts) {
+      document.getElementById("available-count").innerText = `Available: ${counts.Available}`;
+      document.getElementById("reserved-count").innerText = `Reserved: ${counts.Reserved}`;
+      document.getElementById("occupied-count").innerText = `Occupied: ${counts.Occupied}`;
+    }
+
+    function renderSlots(data) {
+      slotList.innerHTML = '';
+      const counts = { Available: 0, Reserved: 0, Occupied: 0 };
+
+      Object.entries(data).forEach(([slotId, details]) => {
+        const li = document.createElement('li');
+        const status = details.status;
+        counts[status]++;
+
+        li.innerHTML = `Slot ${slotId.replace("slot", "")} - Status: <span class="${status.toLowerCase()}">${status}</span>`;
+        slotList.appendChild(li);
+      });
+
+      updateSummary(counts);
+    }
+
+    db.ref("/slots").on("value", snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        renderSlots(data);
+      } else {
+        slotList.innerHTML = "<li>No slot data found.</li>";
+      }
+    });
+  </script>
+</body>
+</html>

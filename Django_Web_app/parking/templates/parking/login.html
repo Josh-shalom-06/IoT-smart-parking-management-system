@@ -1,0 +1,21 @@
+<!-- templates/parking/login.html -->
+{% extends 'parking/base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="card shadow p-4">
+    <h2 class="mb-4">Login</h2>
+    <form method="post">{% csrf_token %}
+        <div class="mb-3">
+            <label for="uid" class="form-label">Login using Phone Number</label>
+            <input type="text" class="form-control" name="uid" required>
+        </div>
+        <button type="submit" class="btn btn-success">Login</button>
+    </form>
+    {% for message in messages %}
+        <div class="alert alert-danger mt-3">{{ message }}</div>
+    {% endfor %}
+    <p class="mt-3"><a href="{% url 'register' %}">Register New RFID User</a></p>
+</div>
+{% endblock %}

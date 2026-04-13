@@ -1,0 +1,23 @@
+# Python / Django
+__pycache__/
+*.pyc
+venv/
+env/
+.env
+db.sqlite3
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# Flutter
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+android/.gradle/
+*.apk
+
+# Firebase / secrets
+google-services.json
+serviceAccountKey.json

@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .status-Available { color: green; font-weight: bold; }
+    .status-Reserved { color: orange; font-weight: bold; }
+    .status-Occupied { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+    <span class="navbar-brand">Smart Parking</span>
+    <div class="ms-auto text-white">
+      Logged in as <strong>{{ name }}</strong> (UID: <code>{{ uid }}</code>) |
+      <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Inside <body> tag after navbar -->
+<div class="container mt-4">
+  <div class="row text-center mb-4">
+    <div class="col-md-4">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <h5>Available</h5>
+          <h2 id="count-available">0</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-warning text-dark">
+        <div class="card-body">
+          <h5>Reserved</h5>
+          <h2 id="count-reserved">0</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-danger text-white">
+        <div class="card-body">
+          <h5>Occupied</h5>
+          <h2 id="count-occupied">0</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="mb-4">Live Parking Slot Status</h3>
+  <div id="slot-list" class="row g-4">Loading slots...</div>
+</div>
+
+
+  
+
+  <script>
+    const uid = "{{ uid }}";
+    const name = "{{ name }}";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtfVW_Tl6Z-rzYcfZr4uKz8Q7hO41sYHU",
+      authDomain: "iot-smart-park-sys-josh.firebaseapp.com",
+      databaseURL: "https://iot-smart-park-sys-josh-default-rtdb.firebaseio.com",
+      projectId: "iot-smart-park-sys-josh",
+      storageBucket: "iot-smart-park-sys-josh.appspot.com",
+      messagingSenderId: "937282914594",
+      appId: "1:937282914594:web:3df2ff7ecca9a921c63d7b"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const slotList = document.getElementById("slot-list");
+
+    function renderSlots(data) {
+  slotList.innerHTML = "";
+
+  let countAvailable = 0;
+  let countReserved = 0;
+  let countOccupied = 0;
+
+  const sortedKeys = Object.keys(data).sort((a, b) => {
+    const numA = parseInt(a.replace("slot", ""));
+    const numB = parseInt(b.replace("slot", ""));
+    return numA - numB;
+  });
+
+  for (let slot of sortedKeys) {
+    const details = data[slot];
+    const status = details.status;
+    const reservedBy = details.reserved_by || "N/A";
+
+    if (status === "Available") countAvailable++;
+    else if (status === "Reserved") countReserved++;
+    else if (status === "Occupied") countOccupied++;
+
+    // [existing code to render cards...]
+    const col = document.createElement("div");
+    col.className = "col-md-4";
+    const card = document.createElement("div");
+    card.className = "card shadow";
+    const cardBody = document.createElement("div");
+    cardBody.className = "card-body";
+
+    cardBody.innerHTML = `
+      <h5 class="card-title">Slot ${slot.replace("slot", "")}</h5>
+      <p>Status: <span class="status-${status}">${status}</span></p>
+      <p><small>Reserved By: <code>${reservedBy}</code></small></p>
+    `;
+
+    if (status === "Available") {
+      cardBody.innerHTML += `
+        <form method="POST" action="/reserve/${slot}/">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-sm">Reserve</button>
+        </form>
+      `;
+    }
+
+    if (status === "Reserved" && reservedBy === uid) {
+      cardBody.innerHTML += `
+        <form method="POST" action="/cancel/${slot}/" class="mt-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+        </form>
+      `;
+    }
+
+    card.appendChild(cardBody);
+    col.appendChild(card);
+    slotList.appendChild(col);
+  }
+
+  // Update summary counts
+  document.getElementById("count-available").textContent = countAvailable;
+  document.getElementById("count-reserved").textContent = countReserved;
+  document.getElementById("count-occupied").textContent = countOccupied;
+}
+
+
+    db.ref("/slots").on("value", (snapshot) => {
+      const slots = snapshot.val();
+      if (slots) {
+        renderSlots(slots);
+      } else {
+        slotList.innerHTML = "<div class='alert alert-warning'>No slots found</div>";
+      }
+    });
+  </script>
+</body>
+</html>
