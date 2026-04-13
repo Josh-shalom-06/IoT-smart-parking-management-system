@@ -72,7 +72,7 @@ IoT-smart-parking-management-system/
 ├── Project_demonstration/
 ├── .gitignore
 └── README.md
-
+```
 ## 🚀 Setup and Run 
 
 ### 1. Clone the Repository
