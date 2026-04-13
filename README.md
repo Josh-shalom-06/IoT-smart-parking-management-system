@@ -73,6 +73,7 @@ IoT-smart-parking-management-system/
 ├── .gitignore
 └── README.md
 ```
+---
 ## 🚀 Setup and Run 
 
 ### 1. Clone the Repository
@@ -81,40 +82,47 @@ cd IoT-smart-parking-management-system
 
 ---
 
-## ⚙️ Upload ESP32 Code
+### ⚙️ Upload ESP32 Code
 1. Open Arduino IDE
 2. Connect ESP32 board
 3. Open required .ino file from ESP32_codes/
 4. Select correct COM port
 5. Upload sketch
 
-## 🌐 Run Django Web Application
+### 🌐 Run Django Web Application
+```bash
 cd Django_Web_app
-
-# Create virtual environment
+```
+#### Create virtual environment
+```bash
 python -m venv env
-
-# Activate virtual environment
-# Windows
+```
+#### Activate virtual environment
+```bash
 env\Scripts\activate
-
-# Install dependencies
+```
+#### Install dependencies
+```bash
 pip install django firebase-admin pyrebase4
-
-# Run server
+```
+#### Run server
+```bash
 python manage.py runserver
-
-## 📱 Run Flutter Mobile App
+```
+### 📱 Run Flutter Mobile App
 
 ```bash
 cd Flutter_Mobile_app
-
-# Install dependencies
+```
+#### Install dependencies
+```bash
 flutter pub get
-
-# Check connected devices
+```
+#### Check connected devices
+```bash
 flutter devices
-
-# Run the app
+```
+#### Run the app
+```bash
 flutter run
-
+```
